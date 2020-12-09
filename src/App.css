@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  
 }
 
 .App-logo {
@@ -33,6 +34,11 @@
   color: gray;
 }
 
+.error {
+  color: red;
+  font-size: 30px
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
@@ -42,7 +48,12 @@
   }
 }
 
-.button {
+button {
   padding: 10px;
   margin: 20px;
 }
+
+p, q {
+  font-size: 16px
+}
+ 
