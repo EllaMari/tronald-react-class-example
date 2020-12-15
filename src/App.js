@@ -131,6 +131,8 @@ class App extends React.Component {
 }
 
 
+
+
   onTagClick = (event) => {
     
     this.setState({ selectedTag: event.target.name});
@@ -140,6 +142,11 @@ class App extends React.Component {
         console.log("ppppp", this.state.quotesToShow)
     })
 
+  }
+  removeQuote= () => {
+    console.log("funziono!")
+    this.state.quotesToShow.splice(0,1)
+  
   }
 
   onModeClick = (mode) => (event) => {
@@ -166,8 +173,8 @@ class App extends React.Component {
           {/* aggiungo classe css a logo in base allo stato */}
           <LogoImg className={`App-logo${this.state.loading ? " App-logo-spinning" : ""}`}/>
           <p>
-            <Button className="button1" type="button" title="RANDOM MODE" onClick={this.onModeClick('random')} disabled={!this.state.isListMode}/>
-            <Button className="button1" type="button" title="LIST MODE"  onClick={this.onModeClick('list')} disabled={this.state.isListMode}/> 
+            <Button className="button1" type="button" title="RANDOM MODE" onClick={this.onModeClick('random')} isDisabled={!this.state.isListMode}/>
+            <Button className="button1" type="button" title="LIST MODE"  onClick={this.onModeClick('list')} isDisabled={this.state.isListMode}/> 
           </p>
           {this.state.isListMode ? ( 
           <>
@@ -177,7 +184,16 @@ class App extends React.Component {
             selectedTag={this.state.selectedTag}
           />
 
-         {this.state.selectedTag !== "" && this.state.quotesToShow.map((singleQuote) => <CurrentQuote  isListMode={this.state.isListMode} objQuote={singleQuote}/>)
+         {this.state.selectedTag !== "" && this.state.quotesToShow.map((singleQuote) =>
+         <> 
+         <CurrentQuote  isListMode={this.state.isListMode} objQuote={singleQuote}/>
+          <Button className="button3" type="button" title="REMOVE!"  onClick={this.removeQuote} isDisabled={this.state.isListMode}/> 
+        </>
+         
+         
+
+         
+         )
           }
          
           </>) : (<> 
@@ -189,7 +205,7 @@ class App extends React.Component {
               : Object.keys(this.state.currentQuote).length > 0 
               && <>
               <CurrentQuote isListMode={this.state.isListMode} objQuote={this.state.currentQuote}/>
-              <p> <Button className="button2" type="button" title="SAVE QUOTES" onClick={this.saveRandomTrump}/></p>
+              <p> <Button className="button3" type="button" title="SAVE QUOTES" onClick={this.saveRandomTrump}/></p>
               </>
             }
           </>)}
