@@ -48,6 +48,7 @@ class App extends React.Component {
       ? (JSON.parse(localStorage.getItem('trumpQuotesTags'))) : []),
       selectedTag: '',
       isListMode: false,
+
     }
   }
 
@@ -67,14 +68,16 @@ class App extends React.Component {
       // need to handle this situation manually
       // throw new Error blocks the execution, and jumps directly into 'CATCH'
       if (data.error) throw new Error(data.error)
+      
 
       quote = {...data} //è l'oggetto che contiene il risultato
+      console.log("aaaaaaa", data.error)
 
     } catch (err) {
       console.log('SONO NEL CATCH: ', err)
       error = true
-      this.setState({...this.state, error: error})
-      
+      this.setState({...this.state, error: error}) 
+      console.log( "eccomi!",this.state.error) 
       
     } finally { 
       localStorage.setItem('trumpCurrentQuote', JSON.stringify(quote))
@@ -139,14 +142,18 @@ class App extends React.Component {
     const filterQuotes= this.state.storedQuotes.filter(singleQuote => singleQuote.tags.findIndex(tag => tag === event.target.name) > -1)
     console.log("hai filtrato?", filterQuotes)
     this.setState({quotesToShow: filterQuotes}, () => {
-        console.log("ppppp", this.state.quotesToShow)
+        console.log("le citazioni per tag sono: ", this.state.quotesToShow)
     })
 
   }
-  removeQuote= () => {
-    console.log("funziono!")
-    this.state.quotesToShow.splice(0,1)
-  
+  removeQuote = (event) => {
+    console.log("funziono!", this.state.quotesToShow, "lunghezza:", this.state.quotesToShow.length, "cit da rimuovere:", event)
+
+    let index = this.state.quotesToShow.indexOf(event)
+    if (index >-1) {this.state.quotesToShow.splice(index, 1)}
+    this.setState({quotesToShow: this.state.quotesToShow})
+
+
   }
 
   onModeClick = (mode) => (event) => {
@@ -172,49 +179,55 @@ class App extends React.Component {
         <header className="App-header">
           {/* aggiungo classe css a logo in base allo stato */}
           <LogoImg className={`App-logo${this.state.loading ? " App-logo-spinning" : ""}`}/>
-          <p>
+          <div>
             <Button className="button1" type="button" title="RANDOM MODE" onClick={this.onModeClick('random')} isDisabled={!this.state.isListMode}/>
             <Button className="button1" type="button" title="LIST MODE"  onClick={this.onModeClick('list')} isDisabled={this.state.isListMode}/> 
-          </p>
-          {this.state.isListMode ? ( 
-          <>
-          <TagList
-            storedTags={this.state.storedTags}
-            onTagClick={this.onTagClick}
-            selectedTag={this.state.selectedTag}
-          />
+          </div>
+        </header>
+        <section className="App-section">
+          {this.state.isListMode 
+          ? ( <>
+            <TagList
+              storedTags={this.state.storedTags}
+              onTagClick={this.onTagClick}
+              selectedTag={this.state.selectedTag}
+           />
 
-         {this.state.selectedTag !== "" && this.state.quotesToShow.map((singleQuote) =>
-         <> 
-         <CurrentQuote  isListMode={this.state.isListMode} objQuote={singleQuote}/>
-          <Button className="button3" type="button" title="REMOVE!"  onClick={this.removeQuote} isDisabled={this.state.isListMode}/> 
-        </>
-         
-         
+            {this.state.selectedTag !== "" && this.state.quotesToShow.map((singleQuote, key) =>
+            <div key={key}> 
+              <CurrentQuote  isListMode={this.state.isListMode} objQuote={singleQuote}/>
+              <div>
+                <Button className="button3" type="button" title="REMOVE!"  onClick={() => this.removeQuote(singleQuote)}/>
+              </div>   
+           </div>
+            )}
+          </>) 
 
-         
-         )
-          }
-         
-          </>) : (<> 
-            <p>
-              <Button className="button2" type="button" title={this.state.loading ? 'loading...' : 'RANDOM TRUMP QUOTE'} onClick={this.fetchRandomTrump} disabled={this.state.loading}/>     
-            </p>
+          : (<> 
+            <div>
+              <Button className="button2" type="button" title={this.state.loading ? 'loading...' : 'RANDOM TRUMP QUOTE'} onClick={this.fetchRandomTrump} isDisabled={this.state.loading}/>     
+            </div>
             {this.state.error === true 
-              ? <p className="error"> Ops, qualcosa è andato storto!</p>
+              ? <><p className="error"> Ops, qualcosa è andato storto! ☹️ </p>
+                </>
+
               : Object.keys(this.state.currentQuote).length > 0 
               && <>
-              <CurrentQuote isListMode={this.state.isListMode} objQuote={this.state.currentQuote}/>
-              <p> <Button className="button3" type="button" title="SAVE QUOTES" onClick={this.saveRandomTrump}/></p>
+                <CurrentQuote isListMode={this.state.isListMode} objQuote={this.state.currentQuote}/>
+                <div>
+                  <Button className="button3" type="button" title="SAVE QUOTES" onClick={this.saveRandomTrump}/>
+                </div>
+                
               </>
             }
-          </>)}
+            </>)
+          }
           
 
           <p>Citazioni salvate: {this.state.storedQuotes.length}</p>
          
           <p>Tag salvati: {this.state.storedTags.length}</p>
-        </header>
+        </section>
       </div>
     );
   }
@@ -230,21 +243,3 @@ export default App;
 // OTHER USEFUL LINKS:
 // https://www.taniarascia.com/understanding-destructuring-rest-spread/
 // https://stackoverflow.com/questions/32782922/what-do-multiple-arrow-functions-mean-in-javascript
-// 1) dividere i componenti in file diversi
-// 2) this.state.currentQuote
-//    creare un componente che visualizzi, oltre che la citazione stessa, anche:
-//    - lista di tag associati alla citazione (array "tags")
-//    - data della citazione (appeared_at)
-//    - link alla fonte della citazione (investigare nella chiave "_embedded",
-//      prendete sempre il primo elemento dell'array "source")
-// 3) gestione carina ed appropriata degli errori (this.state.error)
-// 4) modalità lista, visualizzare le citazioni associate al tag selezionato
-//    (utilizzando il componente creato nel punto 2)
-//    (fatelo comportare in maniera diversa a seconda della modalità random/list)
-// 5) tornando alla modalità random, deselezionare il tag selezionato
-// medio/difficile
-// 6) arricchire il componente creato nel punto 2 con un meccanismo di salvataggio (solo in modalità random) - CONTROLLARE CHE LA CITAZIONE NON SIA STATA GIA' SALVATA (quote_id)
-// 7) arricchire il componente creato nel punto 2 con un meccanismo di cancellazione (solo in modalità lista)
-//    (utilizzate il campo "quote_id" all'interno della citazione)
-
-
