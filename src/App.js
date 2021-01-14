@@ -148,10 +148,18 @@ class App extends React.Component {
   }
   removeQuote = (event) => {
     console.log("funziono!", this.state.quotesToShow, "lunghezza:", this.state.quotesToShow.length, "cit da rimuovere:", event)
+    //verifico
 
     let index = this.state.quotesToShow.indexOf(event)
     if (index >-1) {this.state.quotesToShow.splice(index, 1)}
     this.setState({quotesToShow: this.state.quotesToShow})
+    console.log("nuovo array:", this.state.quotesToShow.length)
+
+    let cit =this.state.storedQuotes.findIndex(id=> id.quote_id===event.quote_id)
+
+    if (cit >-1) {this.state.storedQuotes.splice(cit,1)}
+    this.setState({storedQuotes: this.state.storedQuotes})
+   
 
 
   }
@@ -170,9 +178,9 @@ class App extends React.Component {
   render () { 
     /* console.log("lo state è", this.state)
     console.log ("i tag salvati sono", this.state.storedTags)*/
-     console.log("le citazioni salvate sono", this.state.storedQuotes) 
+     /* console.log("le citazioni salvate sono", this.state.storedQuotes)  */
     /*console.log("tag selezionato", this.state.selectedTag ) */ 
-    console.log("ci sei", this.state.currentQuote)
+    /* console.log("ci sei", this.state.currentQuote) */
     
     return (
       <div className="App">
