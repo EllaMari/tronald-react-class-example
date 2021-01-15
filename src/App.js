@@ -160,6 +160,18 @@ class App extends React.Component {
     this.setState({storedQuotes: this.state.storedQuotes})
     localStorage.setItem('trumpQuotes', JSON.stringify(this.state.storedQuotes))
 
+    if (event.tags.length > 0){
+      event.tags.forEach(currentTag => {
+        this.state.storedQuotes.forEach(quote => {
+          if (!quote.tags.includes(currentTag))
+         {
+              this.state.storedTags.splice(currentTag,1)
+          }
+        })
+      })
+    }
+
+
 
 
   }
