@@ -150,16 +150,16 @@ class App extends React.Component {
     console.log("funziono!", this.state.quotesToShow, "lunghezza:", this.state.quotesToShow.length, "cit da rimuovere:", event)
     //verifico
 
-    let index = this.state.quotesToShow.indexOf(event)
+    const index = this.state.quotesToShow.indexOf(event)
     if (index >-1) {this.state.quotesToShow.splice(index, 1)}
     this.setState({quotesToShow: this.state.quotesToShow})
     console.log("nuovo array:", this.state.quotesToShow.length)
 
-    let cit =this.state.storedQuotes.findIndex(id=> id.quote_id===event.quote_id)
-
+    const cit =this.state.storedQuotes.findIndex(id=> id.quote_id===event.quote_id)
     if (cit >-1) {this.state.storedQuotes.splice(cit,1)}
     this.setState({storedQuotes: this.state.storedQuotes})
-   
+    localStorage.setItem('trumpQuotes', JSON.stringify(this.state.storedQuotes))
+
 
 
   }
