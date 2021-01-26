@@ -80,7 +80,8 @@ class App extends React.Component {
       console.log( "eccomi!",this.state.error)})
       
     } finally { 
-      this.setState({...this.state, // see immutables
+      this.setState({
+          ...this.state, // see immutables
           currentQuote: error ? {} : quote,
           loading: false,
           error //SINTASSI ABBREVIATA DI error:error
@@ -146,21 +147,21 @@ class App extends React.Component {
     )
   }
 
-  removeQuote = (event) => (singleQuote) => {
-    console.log("funziono!", this.state.quotesToShow, "lunghezza:", this.state.quotesToShow.length, "cit rimossa", event)
+  removeQuote = (currentQuote) => (singleQuote) => {
+    console.log("funziono!", this.state.quotesToShow, "lunghezza:", this.state.quotesToShow.length, "cit rimossa", currentQuote)
     console.log("tag salvati", this.state.storedTags)
     console.log("tag da rimuovere", typeof this.state.selectedTag)
-    let storedQuotes= this.state.storedQuotes;
-    let quotesToShow= this.state.quotesToShow;
-   let selectedTag= this.state.selectedTag;
-    let storedTags=this.state.storedTags;
+    const storedQuotes= this.state.storedQuotes;
+    const quotesToShow= this.state.quotesToShow;
+    const selectedTag= this.state.selectedTag;
+    const storedTags=this.state.storedTags;
     /**/
     
 
     //recupero indice citazione da cancellare
-    const index = quotesToShow.indexOf(event);
+    const index = quotesToShow.indexOf(currentQuote);
     /* console.log ("indiceeee", index) */
-    const quoteToRemove= storedQuotes.findIndex( quote => event.quote_id === quote.quote_id)
+    const quoteToRemove= storedQuotes.findIndex( quote => currentQuote.quote_id === quote.quote_id)
    
     if (index > -1) quotesToShow.splice(index, 1)
     if (quoteToRemove >-1) storedQuotes.splice(quoteToRemove,1)
@@ -171,16 +172,17 @@ class App extends React.Component {
      storedTags.splice(tagToRemove,1)
     }
 
-    this.setState({
-        quotesToShow: quotesToShow,
-        storedQuotes: storedQuotes,
-        storedTags: storedTags,
-      },
-      () => {console.log("nuovo array:", this.state.quotesToShow.length)}
-    )
 
-    localStorage.setItem('trumpQuotes', JSON.stringify(this.state.storedQuotes))
-    localStorage.setItem('trumpQuotesTags', JSON.stringify(this.state.storedTags))
+    this.setState({
+      ...this.state,
+      quotesToShow: quotesToShow,
+      storedQuotes: storedQuotes,
+      storedTags: storedTags,
+    },
+    () => {
+      localStorage.setItem('trumpQuotes', JSON.stringify(this.state.storedQuotes));
+      localStorage.setItem('trumpQuotesTags', JSON.stringify(this.state.storedTags))
+    })
   }
 
   onModeClick = (mode) => (event) => {
@@ -190,7 +192,6 @@ class App extends React.Component {
       isListMode: mode === 'list' ? true : false,
       selectedTag: ""
     })
-    
   }
 
   componentDidUpdate(prevProps, prevState) {
