@@ -1,10 +1,11 @@
 import React from "react";
 
-const logo = require("../trump.gif")
+
 
 const LogoImg = (props) => {
+    
     return (
-        <img className={props.className} src={logo} alt="logo" />
+        <img className={props.className} src={props.src} alt={props.alt} />
 
     )
 }

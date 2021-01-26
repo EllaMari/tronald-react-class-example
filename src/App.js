@@ -31,7 +31,7 @@ const RANDOMURL = 'https://api.tronalddump.io/random/quote'
 // const SEARCHURL = 'https://api.tronalddump.io/search/quote'
 // const ALLTAGSURL = 'https://api.tronalddump.io/tag'
 
-
+const logo = require("./trump.gif")
 class App extends React.Component {
   constructor(props) {
     super(props); // il metodo super si inizializza sempre
@@ -76,116 +76,142 @@ class App extends React.Component {
     } catch (err) {
       console.log('SONO NEL CATCH: ', err)
       error = true
-      this.setState({...this.state, error: error}) 
-      console.log( "eccomi!",this.state.error) 
+      this.setState({...this.state, error}, () => {
+      console.log( "eccomi!",this.state.error)})
       
     } finally { 
-      localStorage.setItem('trumpCurrentQuote', JSON.stringify(quote))
       this.setState({...this.state, // see immutables
           currentQuote: error ? {} : quote,
           loading: false,
           error //SINTASSI ABBREVIATA DI error:error
         })
     }
-  
   }
+  
+
   saveRandomTrump = ()=> {
-  const storedQuotes=this.state.storedQuotes 
-  let storedTags = this.state.storedTags 
-  // see inside quote.tags.forEach
-  // let storedTags = [...this.state.storedTags]
-  let isNewQuote = true
+    const storedQuotes=this.state.storedQuotes 
+    let storedTags = this.state.storedTags 
+    // see inside quote.tags.forEach
+    // let storedTags = [...this.state.storedTags]
+    let isNewQuote = true
 
 
-  // avoid condition if array is empty
-  if (storedQuotes.length > 0) {
-    // check if quote already exists
-      const indexQuote = storedQuotes.findIndex(storedQuote => this.state.currentQuote.quote_id === storedQuote.quote_id)
-      if (indexQuote > -1 ) { // this means that quote already exists!
-        isNewQuote = false
+    // avoid condition if array is empty
+    if (storedQuotes.length > 0) {
+      // check if quote already exists
+        const indexQuote = storedQuotes.findIndex(storedQuote => this.state.currentQuote.quote_id === storedQuote.quote_id)
+        if (indexQuote > -1 ) { // this means that quote already exists!
+          isNewQuote = false
+        } 
+    } 
+    // checking stored tags
+    // checking for each retrieved tag, if exists
+    if (this.state.currentQuote.tags.length > 0) {
+        this.state.currentQuote.tags.forEach(currentTag => {
+              const indexTag = storedTags.findIndex(storedTag => storedTag === currentTag)
+              if (indexTag === -1) {
+                // mutable operation will lead to bugs here
+                // storedTags.push(currentTag)
+                storedTags = [...storedTags, currentTag]
+              }
+        })
       } 
-  } 
-  // checking stored tags
-  // checking for each retrieved tag, if exists
-  if (this.state.currentQuote.tags.length > 0) {
-      this.state.currentQuote.tags.forEach(currentTag => {
-            const indexTag = storedTags.findIndex(storedTag => storedTag === currentTag)
-            if (indexTag === -1) {
-              // mutable operation will lead to bugs here
-              // storedTags.push(currentTag)
-              storedTags = [...storedTags, currentTag]
-            }
-          })
-  } 
-  // using setState with prevState
-  // see https://css-tricks.com/understanding-react-setstate/
-  this.setState((prevState) => {
-    const quotesToSave = isNewQuote ? [...prevState.storedQuotes,this.state.currentQuote] : prevState.storedQuotes
-    // storing into localStoragequ
-    localStorage.setItem('trumpQuotes', JSON.stringify(quotesToSave))
-    localStorage.setItem('trumpQuotesTags', JSON.stringify(storedTags))
-   
-    return{
-      ...this.state,
-      storedQuotes: [...quotesToSave],
-      storedTags: [...storedTags],
-    }
-  })
-}
-
-
-
+    // using setState with prevState
+    // see https://css-tricks.com/understanding-react-setstate/
+    this.setState((prevState) => {
+      const quotesToSave = isNewQuote ? [...prevState.storedQuotes,this.state.currentQuote] : prevState.storedQuotes
+      // storing into localStoragequ
+      localStorage.setItem('trumpQuotes', JSON.stringify(quotesToSave))
+      localStorage.setItem('trumpQuotesTags', JSON.stringify(storedTags))
+    
+      return {
+        ...this.state,
+        storedQuotes: [...quotesToSave],
+        storedTags: [...storedTags],
+      }
+    })
+  }
 
   onTagClick = (event) => {
-    
-    this.setState({ selectedTag: event.target.name});
     const filterQuotes= this.state.storedQuotes.filter(singleQuote => singleQuote.tags.findIndex(tag => tag === event.target.name) > -1)
     console.log("hai filtrato?", filterQuotes)
-    this.setState({quotesToShow: filterQuotes}, () => {
-        console.log("le citazioni per tag sono: ", this.state.quotesToShow)
-    })
-
+    this.setState({ 
+      ...this.state,
+      selectedTag: event.target.name,
+      quotesToShow: filterQuotes,
+      },
+      () => {
+       console.log("le citazioni per tag sono: ", this.state.quotesToShow)}
+    )
   }
-  removeQuote = (event) => {
-    console.log("funziono!", this.state.quotesToShow, "lunghezza:", this.state.quotesToShow.length, "cit da rimuovere:", event)
-    //verifico
 
-    const index = this.state.quotesToShow.indexOf(event)
-    if (index >-1) {this.state.quotesToShow.splice(index, 1)}
-    this.setState({quotesToShow: this.state.quotesToShow})
-    console.log("nuovo array:", this.state.quotesToShow.length)
+  removeQuote = (event) => (singleQuote) =>{
+  /*   console.log("funziono!", this.state.quotesToShow, "lunghezza:", this.state.quotesToShow.length, "cit da rimuovere:", singleQuote) */
+    let storedQuotes= this.state.storedQuotes;
+    const quotesToShow= this.state.quotesToShow;
 
-    const cit =this.state.storedQuotes.findIndex(id=> id.quote_id===event.quote_id)
-    if (cit >-1) {this.state.storedQuotes.splice(cit,1)}
-    this.setState({storedQuotes: this.state.storedQuotes})
+    //recupero indice citazione da cancellare
+    const index = quotesToShow.indexOf(event);
+    /* console.log ("indiceeee", index) */
+    const quoteToRemove= storedQuotes.findIndex( quote => event.quote_id === quote.quote_id)
+    if (index > -1) quotesToShow.splice(index, 1)
+    if (quoteToRemove >-1) storedQuotes.splice(quoteToRemove,1)
+    
+    this.setState({
+        quotesToShow: quotesToShow,
+        storedQuotes: storedQuotes
+      },
+      () => {console.log("nuovo array:", this.state.quotesToShow.length)}
+    )
+
     localStorage.setItem('trumpQuotes', JSON.stringify(this.state.storedQuotes))
+  }
+  
+    
 
-    if (event.tags.length > 0){
-      event.tags.forEach(currentTag => {
+    /* if (event.tags.length > 0) {
+      const currentTag = event.tags.length.forEach(currentTag => {
+          this.state.storedQuotes.forEach (quote => {
+          const indexTag = quote.tags.findIndex(storedTag => storedTag === currentTag)
+            if (indexTag === -1) {
+              this.state.storedTags.splice(currentTag,1)
+            }   
+        })
+      })
+    
+ */
+    /* if (event.tags.length > 0){
+      event.tags.forEach (currentTag => {
+        const index = 
         this.state.storedQuotes.forEach(quote => {
           if (!quote.tags.includes(currentTag))
          {
               this.state.storedTags.splice(currentTag,1)
           }
         })
-      })
-    }
-
-
-
-
-  }
+      }) */
+    /* this.setState({
+      storedTags: this.state.storedTags})
+ */
+ 
 
   onModeClick = (mode) => (event) => {
     console.log('MODE? ', mode)
-    this.setState({ isListMode: mode=== 'list' ? true : false })
-    if (!this.state.isListMode) this.setState({selectedTag: ""})
-  } 
+    this.setState({ 
+      ...this.state, 
+      isListMode: mode === 'list' ? true : false,
+      selectedTag: ""
+    })
+    
+  }
 
   componentDidUpdate(prevProps, prevState) {
     // console.log('PROBLEM!!! ', prevState.storedTags.length, this.state.storedTags.length)
-    if (prevState.storedTags.length !== this.state.storedTags.length) console.log('DIFFERENZA STOREDTAG!')
+    if (prevState.storedTags.length !== this.state.storedTags.length) 
+    console.log('DIFFERENZA STOREDTAG!')
   }
+    
 
   render () { 
     /* console.log("lo state è", this.state)
@@ -198,12 +224,13 @@ class App extends React.Component {
       <div className="App">
         <header className="App-header">
           {/* aggiungo classe css a logo in base allo stato */}
-          <LogoImg className={`App-logo${this.state.loading ? " App-logo-spinning" : ""}`}/>
+          <LogoImg className={`App-logo${this.state.loading ? " App-logo-spinning" : ""}`} src={logo} alt="logo trump"/>
           <div>
             <Button className="button1" type="button" title="RANDOM MODE" onClick={this.onModeClick('random')} isDisabled={!this.state.isListMode}/>
             <Button className="button1" type="button" title="LIST MODE"  onClick={this.onModeClick('list')} isDisabled={this.state.isListMode}/> 
           </div>
         </header>
+
         <section className="App-section">
           {this.state.isListMode 
           ? ( <>
@@ -215,10 +242,7 @@ class App extends React.Component {
 
             {this.state.selectedTag !== "" && this.state.quotesToShow.map((singleQuote, key) =>
             <div key={key}> 
-              <CurrentQuote  isListMode={this.state.isListMode} objQuote={singleQuote}/>
-              <div>
-                <Button className="button3" type="button" title="REMOVE!"  onClick={() => this.removeQuote(singleQuote)}/>
-              </div>   
+              <CurrentQuote  isListMode={this.state.isListMode} objQuote={singleQuote} onClick={this.removeQuote(singleQuote)}/>
            </div>
             )}
           </>) 
@@ -233,17 +257,13 @@ class App extends React.Component {
 
               : Object.keys(this.state.currentQuote).length > 0 
               && <>
-                <CurrentQuote isListMode={this.state.isListMode} objQuote={this.state.currentQuote}/>
-                <div>
-                  <Button className="button3" type="button" title="SAVE QUOTES" onClick={this.saveRandomTrump}/>
-                </div>
+                <CurrentQuote isListMode={this.state.isListMode} objQuote={this.state.currentQuote} onClick={this.saveRandomTrump}/>
                 
               </>
             }
             </>)
           }
-          
-
+        
           <p>Citazioni salvate: {this.state.storedQuotes.length}</p>
          
           <p>Tag salvati: {this.state.storedTags.length}</p>
@@ -252,7 +272,7 @@ class App extends React.Component {
     );
   }
 }
-
+    
 export default App;
 
 
