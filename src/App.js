@@ -146,55 +146,42 @@ class App extends React.Component {
     )
   }
 
-  removeQuote = (event) => (singleQuote) =>{
-  /*   console.log("funziono!", this.state.quotesToShow, "lunghezza:", this.state.quotesToShow.length, "cit da rimuovere:", singleQuote) */
+  removeQuote = (event) => (singleQuote) => {
+    console.log("funziono!", this.state.quotesToShow, "lunghezza:", this.state.quotesToShow.length, "cit rimossa", event)
+    console.log("tag salvati", this.state.storedTags)
+    console.log("tag da rimuovere", typeof this.state.selectedTag)
     let storedQuotes= this.state.storedQuotes;
-    const quotesToShow= this.state.quotesToShow;
+    let quotesToShow= this.state.quotesToShow;
+   let selectedTag= this.state.selectedTag;
+    let storedTags=this.state.storedTags;
+    /**/
+    
 
     //recupero indice citazione da cancellare
     const index = quotesToShow.indexOf(event);
     /* console.log ("indiceeee", index) */
     const quoteToRemove= storedQuotes.findIndex( quote => event.quote_id === quote.quote_id)
+   
     if (index > -1) quotesToShow.splice(index, 1)
     if (quoteToRemove >-1) storedQuotes.splice(quoteToRemove,1)
     
+     //recupero tag da rimuovere
+     const tagToRemove = storedTags.findIndex(tag => selectedTag === tag)
+     if (quotesToShow.length === 0 && tagToRemove >-1) {
+     storedTags.splice(tagToRemove,1)
+    }
+
     this.setState({
         quotesToShow: quotesToShow,
-        storedQuotes: storedQuotes
+        storedQuotes: storedQuotes,
+        storedTags: storedTags,
       },
       () => {console.log("nuovo array:", this.state.quotesToShow.length)}
     )
 
     localStorage.setItem('trumpQuotes', JSON.stringify(this.state.storedQuotes))
+    localStorage.setItem('trumpQuotesTags', JSON.stringify(this.state.storedTags))
   }
-  
-    
-
-    /* if (event.tags.length > 0) {
-      const currentTag = event.tags.length.forEach(currentTag => {
-          this.state.storedQuotes.forEach (quote => {
-          const indexTag = quote.tags.findIndex(storedTag => storedTag === currentTag)
-            if (indexTag === -1) {
-              this.state.storedTags.splice(currentTag,1)
-            }   
-        })
-      })
-    
- */
-    /* if (event.tags.length > 0){
-      event.tags.forEach (currentTag => {
-        const index = 
-        this.state.storedQuotes.forEach(quote => {
-          if (!quote.tags.includes(currentTag))
-         {
-              this.state.storedTags.splice(currentTag,1)
-          }
-        })
-      }) */
-    /* this.setState({
-      storedTags: this.state.storedTags})
- */
- 
 
   onModeClick = (mode) => (event) => {
     console.log('MODE? ', mode)
