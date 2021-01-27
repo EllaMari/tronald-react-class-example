@@ -155,29 +155,39 @@ class App extends React.Component {
     const quotesToShow= this.state.quotesToShow;
     const selectedTag= this.state.selectedTag;
     const storedTags=this.state.storedTags;
-    /**/
-    
-
-    //recupero indice citazione da cancellare
-    const index = quotesToShow.indexOf(currentQuote);
-    /* console.log ("indiceeee", index) */
-    const quoteToRemove= storedQuotes.findIndex( quote => currentQuote.quote_id === quote.quote_id)
-   
+    //MUTABILE
+    /*
+    const i= quotesToShow.indexOf(currentQuote);
+    console.log ("indiceeee", index) 
+    const indexQuote= storedQuotes.findIndex( quote => currentQuote.quote_id === quote.quote_id)
     if (index > -1) quotesToShow.splice(index, 1)
-    if (quoteToRemove >-1) storedQuotes.splice(quoteToRemove,1)
-    
-     //recupero tag da rimuovere
+    if (indexQuote >-1) storedQuotes.splice(quoteToRemove,1)
+    //recupero tag da rimuovere
      const tagToRemove = storedTags.findIndex(tag => selectedTag === tag)
      if (quotesToShow.length === 0 && tagToRemove >-1) {
      storedTags.splice(tagToRemove,1)
     }
+    */
+    //per rimuovere l'oggetto dall'array creo un nuovo array che non include l'oggetto!
+    //recupero indice citazione da cancellare
+    const i= quotesToShow.indexOf(currentQuote);
+    const indexQuote= storedQuotes.findIndex( quote => currentQuote.quote_id === quote.quote_id)
+    //passo variabile index come parametro alla funzione filter, nella callback di confronto passo la costante indexquote
+    const newStoredQuotes=storedQuotes.filter((quote, index) => index !== indexQuote)
+    const newQuotesToShow=quotesToShow.filter((quote, index)=> index !== i)
+   
+    
+    //recupero tag da rimuovere
+     const indexTag = storedTags.findIndex(tag => selectedTag === tag)
+     const newStoredTags= storedTags.filter((tag, index) => index !== indexTag)
+  
 
 
     this.setState({
       ...this.state,
-      quotesToShow: quotesToShow,
-      storedQuotes: storedQuotes,
-      storedTags: storedTags,
+      quotesToShow: newQuotesToShow, 
+      storedQuotes: newStoredQuotes,
+      storedTags: quotesToShow.length===1 ? newStoredTags : storedTags,
     },
     () => {
       localStorage.setItem('trumpQuotes', JSON.stringify(this.state.storedQuotes));
